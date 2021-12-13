@@ -1,0 +1,8 @@
+*{
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  overflow-x: hidden; 
+  user-select: none !important;
+}
+
