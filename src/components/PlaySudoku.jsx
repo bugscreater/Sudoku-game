@@ -3,23 +3,21 @@ import "./playground.css";
 import { Link } from "react-router-dom";
 
 function PlaySudoku() {
- 
   // restrict backspace key...
   window.onkeydown = function (event) {
     if (event.which == 8 || event.which == 46) {
       event.preventDefault(); // turn off browser transition to the previous page
     }
   };
-  
-   //  quit game...
-  function quit_game(){
+
+  //  quit game...
+  function quit_game() {
     if (Game_Interval !== undefined) {
       clearInterval(Game_Interval);
     }
     game_over();
-
   }
-  
+
   const [level, setLevel] = useState("easy");
   function Reload_game() {
     if (Game_Interval !== undefined) {
@@ -47,17 +45,15 @@ function PlaySudoku() {
       cell.value = "";
       cell.disabled = true;
       cell.readOnly = true;
-      
+
       cell.classList.remove("filled_cell");
       cell.classList.remove("correct");
       cell.classList.remove("incorrect");
-
     }
 
-  
     setGame_Score(0);
     setGame_result("You loose");
-    setTime({m:0,s:0});
+    setTime({ m: 0, s: 0 });
 
     var game_result = document.getElementById("game_result");
 
@@ -69,9 +65,7 @@ function PlaySudoku() {
     if (eraser !== null) {
       eraser.style.display = "block";
     }
-    
-  
-   
+
     var view_solution_btn = document.getElementById("View-solution");
 
     if (view_solution_btn !== null) {
@@ -83,20 +77,14 @@ function PlaySudoku() {
     if (new_game_btn !== null) {
       new_game_btn.style.display = "none";
     }
-    
-    if(level === "easy"){
+
+    if (level === "easy") {
       setGame_live(15);
-    }
-    else if(level === "medium"){
+    } else if (level === "medium") {
       setGame_live(20);
-    }
-    else{
+    } else {
       setGame_live(30);
     }
-
-    
-
-    
   }
 
   const m = 9;
@@ -118,9 +106,6 @@ function PlaySudoku() {
   const [easy_sudoku, setEasy] = useState();
   const [medium_sudoku, setMedium] = useState();
   const [hard_sudoku, setHard] = useState();
-
- 
- 
 
   // change theme...
 
@@ -151,6 +136,9 @@ function PlaySudoku() {
       .then((data) => {
         data = JSON.stringify(data);
         setEasy(data);
+      })
+      .catch((err) => {
+        alert("failed to fetch data, please check your internet connection.");
       });
 
     fetch("https://sudoku-game-server.herokuapp.com/medium")
@@ -158,6 +146,9 @@ function PlaySudoku() {
       .then((data) => {
         data = JSON.stringify(data);
         setMedium(data);
+      })
+      .catch((err) => {
+        alert("failed to fetch data, please check your internet connection.");
       });
 
     fetch("https://sudoku-game-server.herokuapp.com/hard")
@@ -165,15 +156,16 @@ function PlaySudoku() {
       .then((data) => {
         data = JSON.stringify(data);
         setHard(data);
+      })
+      .catch((err) => {
+        alert("failed to fetch data, please check your internet connection.");
       });
   }
-  
+
   const [Game_Interval, setGame_Interval] = useState();
   useEffect(() => {
-   
-     callapi();
+    callapi();
   }, []);
-  
 
   const dummy_arr = new Array(9);
 
@@ -182,8 +174,6 @@ function PlaySudoku() {
   for (var c = 0; c < dummy_arr.length; c++) {
     dummy_arr[c] = new Array(9).fill(0);
   }
-
-  
 
   function changelevel(e) {
     let level = e.target.value;
@@ -224,7 +214,6 @@ function PlaySudoku() {
     e.target.classList.add("selected");
   }
 
- 
   const [Game_Score, setGame_Score] = useState(0);
 
   //  Scroll the page to automatic to board...
@@ -242,13 +231,10 @@ function PlaySudoku() {
     }
 
     if (level === "easy") {
-    
       fill_board(easy_sudoku);
     } else if (level === "medium") {
-     
       fill_board(medium_sudoku);
     } else {
-     
       fill_board(hard_sudoku);
     }
 
@@ -306,6 +292,7 @@ function PlaySudoku() {
   }
 
   //  fill the cell or erase the cell...
+  // const [count_correct_cell, setcount_correct_cell] = useState(0);
   function fill_the_cell(e, row, column) {
     var count = 0;
 
@@ -316,27 +303,27 @@ function PlaySudoku() {
       }
     }
 
-    if (selected_number === 0) {
-      e.target.value = "";
-    } else {
-      if (!eraser_selected) {
-        e.target.value = selected_number;
-        input_arr[row][column] = e.target.value;
-      } else {
-        if (e.target.value !== "") {
-          e.target.value = "";
-          input_arr[row][column] = "";
-          let score = Game_Score;
-          score--;
-          if (score >= 0) {
-            setGame_Score(score);
-          } else {
-            setGame_Score(0);
-          }
-        }
-
-        return;
+    if (eraser_selected && selected_number === 0) {
+      if (e.target.value !== "") {
+        e.target.value = "";
+        e.target.classList.remove("correct");
+        e.target.classList.remove("incorrect");
+        input_arr[row][column] = "";
+      
       }
+      let correct_cell = 0;
+      for (var i = 0; i < 81; i++) {
+        let cell = document.getElementById(`cell-${i}`);
+        if (cell.classList.contains("correct")) {
+          correct_cell++;
+        }
+      }
+      setGame_Score(correct_cell);
+
+      return;
+    } else if (!eraser_selected && selected_number !== 0) {
+      e.target.value = selected_number;
+      input_arr[row][column] = e.target.value;
 
       if (!isValidSudoku(input_arr)) {
         e.target.classList.remove("correct");
@@ -359,13 +346,30 @@ function PlaySudoku() {
         score++;
         setGame_Score(score);
         var filled_cell = 0;
+        var correct_cell = 0;
 
         for (var i = 0; i < 81; i++) {
           let cell = document.getElementById(`cell-${i}`);
+
+          if (cell.classList.contains("incorrect")) {
+            cell.classList.remove("incorrect");
+          }
+
+          if (!cell.classList.contains("filled_cell") && cell.value !== "") {
+            cell.classList.add("correct");
+          }
+
+          if (cell.classList.contains("correct")) {
+            correct_cell++;
+          }
+
           if (cell.value !== "") {
             filled_cell++;
           }
         }
+
+        //  Update score with proper number of correct_cell....
+        setGame_Score(correct_cell);
         //  check whether user wins or not...
         if (filled_cell === 81) {
           if (Game_Interval !== undefined) {
@@ -409,12 +413,19 @@ function PlaySudoku() {
       eraser.style.display = "none";
     }
 
-    
-
     let end_game_btn = document.getElementById("Game_end_btn");
     if (end_game_btn !== null) {
       end_game_btn.disabled = true;
     }
+
+    let correct_cell = 0;
+    for (var i = 0; i < 81; i++) {
+      let cell = document.getElementById(`cell-${i}`);
+      if (cell.classList.contains("correct")) {
+        correct_cell++;
+      }
+    }
+    setGame_Score(correct_cell);
   }
 
   //  Function for sudoku validation....
@@ -483,9 +494,7 @@ function PlaySudoku() {
   var updatedmin = time.m;
   var updatedsec = time.s;
 
-  function run(){
-    
-  
+  function run() {
     if (updatedsec === 60) {
       updatedmin++;
       updatedsec = 0;
@@ -499,7 +508,7 @@ function PlaySudoku() {
     updatedsec++;
 
     return setTime({ m: updatedmin, s: updatedsec });
-  };
+  }
 
   function fill_board(sudoku_puzzle) {
     if (sudoku_puzzle !== undefined) {
@@ -533,9 +542,9 @@ function PlaySudoku() {
         count++;
       }
     }
-   
+
     let output_arr = solve(dummy_arr);
-  
+
     setoutput_arr(output_arr);
   }
 
@@ -676,7 +685,6 @@ function PlaySudoku() {
           <div id="time">
             <h3 className="heading_tag">Time : </h3>
             <div className="header-box">
-              
               <input
                 id="time-1"
                 type="radio"
@@ -686,7 +694,7 @@ function PlaySudoku() {
                 disabled={isdisabled}
                 onClick={change_time}
               />
-              <label id="time_lable_1">15 Min</label>
+              <label id="time_lable_1">15 min</label>
               <input
                 id="time-2"
                 type="radio"
@@ -695,7 +703,8 @@ function PlaySudoku() {
                 onClick={change_time}
                 disabled={isdisabled}
               />
-              <label id="time_lable_2">20 Min</label>
+              <label id="time_lable_2">20 min</label>
+
               <input
                 id="time-3"
                 type="radio"
@@ -704,7 +713,7 @@ function PlaySudoku() {
                 onClick={change_time}
                 disabled={isdisabled}
               />
-              <label id="time_lable_3">30 Min</label>
+              <label id="time_lable_3">30 min</label>
             </div>
           </div>
 
