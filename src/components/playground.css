@@ -223,6 +223,13 @@ a{
 
 
 @media screen and (max-width: 1000px){
+      .heading_tag{
+        float: left !important;
+        margin-left: 4px !important;
+    }
+    .header-box{
+        float: left !important;
+    }
     h3{
         font-size: 15px;
     }
@@ -242,6 +249,7 @@ a{
         flex-direction: column;
         justify-content: space-around;
         overflow: hidden;
+        margin-top: 5px !important;
        
     }
     #theme{
@@ -257,10 +265,15 @@ a{
 
     #time{
         margin-bottom: 25px;
+        margin-top: 5px;
     }
     
     
 }
+
+  
+
+
 
   
 
