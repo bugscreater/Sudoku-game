@@ -16,7 +16,7 @@ function PlaySudoku() {
     if (Game_Interval !== undefined) {
       clearInterval(Game_Interval);
     }
-    Reload_game();
+    game_over();
 
   }
   
@@ -85,13 +85,13 @@ function PlaySudoku() {
     }
     
     if(level === "easy"){
-      setGame_live(10);
-    }
-    else if(level === "medium"){
       setGame_live(15);
     }
-    else{
+    else if(level === "medium"){
       setGame_live(20);
+    }
+    else{
+      setGame_live(30);
     }
 
     
@@ -189,18 +189,18 @@ function PlaySudoku() {
     let level = e.target.value;
     setLevel(level);
     if (level === "easy") {
-      setGame_live(10);
-    } else if (level === "medium") {
       setGame_live(15);
-    } else {
+    } else if (level === "medium") {
       setGame_live(20);
+    } else {
+      setGame_live(30);
     }
   }
 
   const [time, setTime] = useState({ m: 0, s: 0 });
-  const [game_time, setGame_time] = useState(5);
+  const [game_time, setGame_time] = useState(15);
 
-  const [game_live, setGame_live] = useState(10);
+  const [game_live, setGame_live] = useState(15);
 
   const [Game_result, setGame_result] = useState("You loose");
 
@@ -287,6 +287,7 @@ function PlaySudoku() {
   // select eraser...
 
   function select_eraser() {
+    setSelect_num(0);
     let flag = eraser_selected;
 
     var children = document.getElementById("number-container").children;
@@ -483,7 +484,8 @@ function PlaySudoku() {
   var updatedsec = time.s;
 
   function run(){
-   
+    
+  
     if (updatedsec === 60) {
       updatedmin++;
       updatedsec = 0;
@@ -636,7 +638,7 @@ function PlaySudoku() {
       <header>
         <div className="setup-Game" id="playground_header">
           <div id="difficulty_of_game">
-            <h3>Difficulty : </h3>
+            <h3 className="heading_tag">Difficulty : </h3>
             <div className="header-box">
               <input
                 id="diff-easy"
@@ -672,36 +674,37 @@ function PlaySudoku() {
           </div>
 
           <div id="time">
+            <h3 className="heading_tag">Time : </h3>
             <div className="header-box">
-              <h3>Time : </h3>
+              
               <input
                 id="time-1"
                 type="radio"
                 name="time"
-                value="5"
+                value="15"
                 defaultChecked={true}
                 disabled={isdisabled}
                 onClick={change_time}
               />
-              <label id="time_lable_1">5 Min</label>
+              <label id="time_lable_1">15 Min</label>
               <input
                 id="time-2"
                 type="radio"
                 name="time"
-                value="10"
+                value="20"
                 onClick={change_time}
                 disabled={isdisabled}
               />
-              <label id="time_lable_2">10 Min</label>
+              <label id="time_lable_2">20 Min</label>
               <input
                 id="time-3"
                 type="radio"
                 name="time"
-                value="15"
+                value="30"
                 onClick={change_time}
                 disabled={isdisabled}
               />
-              <label id="time_lable_3">15 Min</label>
+              <label id="time_lable_3">30 Min</label>
             </div>
           </div>
 
