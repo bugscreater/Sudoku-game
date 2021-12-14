@@ -228,7 +228,14 @@ a{
         margin-left: 4px !important;
     }
     .header-box{
-        float: left !important;
+        clear: both;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-around;
+        overflow: hidden;
+        white-space: nowrap;
+        width: 100vw;
     }
     h3{
         font-size: 15px;
@@ -249,7 +256,7 @@ a{
         flex-direction: column;
         justify-content: space-around;
         overflow: hidden;
-        margin-top: 5px !important;
+      margin-top: 15px !important;
        
     }
     #theme{
