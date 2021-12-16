@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./playground.css";
 import { Link } from "react-router-dom";
 
+
 function PlaySudoku() {
   // restrict backspace key...
   window.onkeydown = function (event) {
@@ -9,6 +10,10 @@ function PlaySudoku() {
       event.preventDefault(); // turn off browser transition to the previous page
     }
   };
+
+  // error msg...
+
+ 
 
   //  quit game...
   function quit_game() {
@@ -130,35 +135,38 @@ function PlaySudoku() {
   //  function for apicall....
   // https://sudoku-game-server.herokuapp.com/easy
 
-  function callapi() {
-    fetch("https://sudoku-game-server.herokuapp.com/easy")
+  async function callapi() {
+    await fetch("https://sudoku-game-server.herokuapp.com/easy")
       .then((res) => res.json())
       .then((data) => {
         data = JSON.stringify(data);
         setEasy(data);
       })
       .catch((err) => {
-        alert("failed to fetch data, please check your internet connection.");
+        console.log(err);
+        return;
       });
 
-    fetch("https://sudoku-game-server.herokuapp.com/medium")
+    await fetch("https://sudoku-game-server.herokuapp.com/medium")
       .then((res) => res.json())
       .then((data) => {
         data = JSON.stringify(data);
         setMedium(data);
       })
       .catch((err) => {
-        alert("failed to fetch data, please check your internet connection.");
+        console.log(err);
+        return;
       });
 
-    fetch("https://sudoku-game-server.herokuapp.com/hard")
+    await fetch("https://sudoku-game-server.herokuapp.com/hard")
       .then((res) => res.json())
       .then((data) => {
         data = JSON.stringify(data);
         setHard(data);
       })
       .catch((err) => {
-        alert("failed to fetch data, please check your internet connection.");
+        console.log(err);
+        return;
       });
   }
 
@@ -229,7 +237,8 @@ function PlaySudoku() {
       document.getElementById(`cell-${i}`).value = "";
       document.getElementById(`cell-${i}`).classList.remove("filled_cell");
     }
-
+    
+    
     if (level === "easy") {
       fill_board(easy_sudoku);
     } else if (level === "medium") {
@@ -309,8 +318,19 @@ function PlaySudoku() {
         e.target.classList.remove("correct");
         e.target.classList.remove("incorrect");
         input_arr[row][column] = "";
-      
       }
+
+      // check again for the valid sudoku..
+      if (isValidSudoku(input_arr)) {
+        for (var i = 0; i < 81; i++) {
+          let cell = document.getElementById(`cell-${i}`);
+          if (cell.classList.contains("incorrect")) {
+            cell.classList.remove("incorrect");
+            cell.classList.add("correct");
+          }
+        }
+      }
+
       let correct_cell = 0;
       for (var i = 0; i < 81; i++) {
         let cell = document.getElementById(`cell-${i}`);
@@ -339,6 +359,16 @@ function PlaySudoku() {
           }
           game_over();
         }
+        let correct_cell = 0;
+        for (var i = 0; i < 81; i++) {
+          let cell = document.getElementById(`cell-${i}`);
+          if (cell.classList.contains("correct")) {
+            correct_cell++;
+          }
+        }
+        setGame_Score(correct_cell);
+
+
       } else {
         e.target.classList.remove("incorrect");
         e.target.classList.add("correct");
@@ -510,9 +540,9 @@ function PlaySudoku() {
     return setTime({ m: updatedmin, s: updatedsec });
   }
 
-  function fill_board(sudoku_puzzle) {
+  async function fill_board(sudoku_puzzle) {
     if (sudoku_puzzle !== undefined) {
-      var puzzle_ques = JSON.parse(sudoku_puzzle);
+      var puzzle_ques = await JSON.parse(sudoku_puzzle);
 
       for (let key in puzzle_ques) {
         if (puzzle_ques[key] !== "0") {
@@ -523,10 +553,9 @@ function PlaySudoku() {
         }
       }
 
-      filldummy_arr(puzzle_ques);
+      await filldummy_arr(puzzle_ques);
     } else {
-      alert("Something went wrong!");
-      window.location.reload();
+     window.location.reload();
     }
   }
 
@@ -645,6 +674,7 @@ function PlaySudoku() {
   return (
     <>
       <header>
+       
         <div className="setup-Game" id="playground_header">
           <div id="difficulty_of_game">
             <h3 className="heading_tag">Difficulty : </h3>
